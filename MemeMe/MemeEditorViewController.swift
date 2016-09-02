@@ -19,6 +19,9 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     @IBOutlet weak var navigationBar: UINavigationBar!
     @IBOutlet weak var shareButton: UIBarButtonItem!
     
+    var meme: Meme?
+    var editMode: Bool=false;
+    
     // raw values correspond to sender tags
     enum sourceType : Int {
         case PhotoLibrary = 0,Camera
@@ -29,6 +32,21 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         setupTextField(topTextField)
         setupTextField(bottomTextField)
         reset()
+        
+        if let meme=meme{
+            memeImage.image=meme.originalImage
+            topTextField.text=meme.topText
+            bottomTextField.text=meme.bottomTextString
+            shareButton.enabled = true
+            editMode=true
+            setEditModeUI(editMode)
+        }
+    }
+    
+    func setEditModeUI(hide: Bool){
+        self.navigationItem.hidesBackButton = hide
+        self.navigationController?.navigationBarHidden = hide
+        self.tabBarController!.tabBar.hidden = hide
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -57,9 +75,10 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         let memeTextAttributes = [
             NSStrokeColorAttributeName : UIColor.blackColor(),
             NSForegroundColorAttributeName : UIColor.whiteColor(),
-            NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+            NSFontAttributeName : UIFont(name: "Impact", size: 40)!,
             NSStrokeWidthAttributeName : -5
         ]
+        
         textField.defaultTextAttributes = memeTextAttributes
         
         textField.textAlignment = .Center
@@ -125,7 +144,11 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         activity.completionWithItemsHandler =  { activity, success, items, error in
             if success {
                 self.save()
-                self.dismissViewControllerAnimated(true, completion: nil)
+                if self.editMode{
+                    self.goToSentMemes()
+                }else{
+                    self.dismissViewControllerAnimated(true, completion: nil)
+                }
             }
         }
 
@@ -134,7 +157,11 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     func save() {
-        _ = Meme(topText: topTextField.text, bottomTextString: bottomTextField.text, originalImage: memeImage.image, memeImage: generateMemedImage())
+        let meme = Meme(topText: topTextField.text, bottomTextString: bottomTextField.text, originalImage: memeImage.image, memeImage: generateMemedImage())
+        
+        let object = UIApplication.sharedApplication().delegate
+        let appDelegate = object as! AppDelegate
+        appDelegate.memes.append(meme)
     }
     
     func generateMemedImage() -> UIImage {
@@ -150,7 +177,16 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     @IBAction func cancelMeme(sender: UIBarButtonItem) {
-        reset()
+        if editMode{
+            goToSentMemes()
+        }else{
+            self.dismissViewControllerAnimated(true, completion: nil)
+        }
+    }
+    
+    func goToSentMemes(){
+        setEditModeUI(false)
+        navigationController?.popToViewController((navigationController?.viewControllers[0])!, animated: true)
     }
 
     
