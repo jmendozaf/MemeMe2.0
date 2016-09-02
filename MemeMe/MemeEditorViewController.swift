@@ -20,7 +20,7 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     @IBOutlet weak var shareButton: UIBarButtonItem!
     
     var meme: Meme?
-    var editMode: Bool=false;
+    var editMode: Bool=false
     
     // raw values correspond to sender tags
     enum sourceType : Int {

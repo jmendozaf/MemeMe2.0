@@ -16,8 +16,6 @@ class MemeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title="Detail"
-        imageView!.image = meme.memeImage
-        self.tabBarController!.tabBar.hidden = true
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "Edit",
@@ -26,6 +24,11 @@ class MemeViewController: UIViewController {
             action: #selector(editMeme(_:))
         )
         
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        imageView!.image = meme.memeImage
+        self.tabBarController!.tabBar.hidden = true
     }
     
     override func viewWillDisappear(animated: Bool) {
